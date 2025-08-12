@@ -13,10 +13,8 @@ def main():
     pygame.display.set_caption("Basic Pygame Skeleton")
 
     camera = Camera()
-
     clock = pygame.time.Clock()
-
-    field = Field("test_field.tmj")
+    field = Field("test_tilemap_2.tmj")
     input_handler = InputHandler(camera)
 
     running = True
@@ -25,7 +23,7 @@ def main():
         running = input_handler.process_all_events()
 
         # Drawing
-        screen.fill((30, 30, 30))
+        screen.fill((30, 30, 30)) # Dark gray background
         field.draw(screen=screen, camera=camera, hex_size=30)
         pygame.display.flip()
         clock.tick(60)
