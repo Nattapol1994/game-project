@@ -74,7 +74,7 @@ class Field:
         sx, sy = camera.world_to_screen(wx, wy)
 
         # Now draw tile at screen coords
-        tile.draw(screen, sx, sy, hex_size, font)
+        tile.draw(screen, sx, sy, hex_size, font, camera.zoom)
 
   def axial_to_pixel(self, q, r, center_x, center_y, size):
     import math
