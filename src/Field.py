@@ -3,6 +3,7 @@ from typing import List
 from src.Tile import Tile
 import pygame
 import math
+from src.Camera import Camera
 
 class Field:
   def __init__(self, path: str):
@@ -56,20 +57,24 @@ class Field:
 
       self.tiles.append(row)
 
-  def draw(self, screen: pygame.Surface, center_x: int, center_y: int, hex_size: int):
+  def draw(self, screen: pygame.Surface, camera: Camera, hex_size: int):
     font = pygame.font.SysFont(None, 24)  # create font once
 
     for y in range(self.height):
-        for x in range(self.width):
-            tile = self.tiles[y][x]
-            if tile is None:
-                continue
+      for x in range(self.width):
+        tile = self.tiles[y][x]
+        if tile is None:
+          continue
 
-            q, r = x, y
-            cx, cy = self.axial_to_pixel(q, r, center_x, center_y, hex_size)
+        # Calculate tile world position (axial to pixel)
+        q, r = x, y
+        wx, wy = self.axial_to_pixel(q, r, 0, 0, hex_size)  # World coords relative to origin (0,0)
 
-            tile.draw(screen, cx, cy, hex_size, font)
+        # Convert world coords to screen coords using camera
+        sx, sy = camera.world_to_screen(wx, wy)
 
+        # Now draw tile at screen coords
+        tile.draw(screen, sx, sy, hex_size, font)
 
   def axial_to_pixel(self, q, r, center_x, center_y, size):
     import math
