@@ -14,7 +14,7 @@ def main():
 
     camera = Camera()
     clock = pygame.time.Clock()
-    field = Field("test_tilemap_2.tmj")
+    field = Field("test_field.tmj")
     input_handler = InputHandler(camera)
 
     running = True
