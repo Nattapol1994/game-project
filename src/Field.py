@@ -6,12 +6,13 @@ from src.hex_utils import *
 # TODO: Implement the skeleton for feature-tile ownership registry.
 
 class Field:
-  def __init__(self, path: str):
+  def __init__(self, path: str, hex_size: int):
     # Initialize field properties
     self.tiles = {}  # Dictionary to hold Tile objects with (x, y) as keys
     self.height = 0
     self.width = 0
     self.tile_selection_manager = TileSelectionManager()
+    self.hex_size = hex_size  # Size of hex tiles in pixels
 
     # Load the field from the specified path
     # Tiles, height, width are loaded from the file.
@@ -59,7 +60,7 @@ class Field:
   
   def place_unit(self, unit):
     tile_coords = unit.tile  
-    tile = self.get_tile_at(*tile_coords)
+    tile = self.get_tile_at_axial_coord(*tile_coords)
     if tile is not None:
         if tile.unit is None:  # check occupancy
             tile.unit = unit   # assign unit to tile
@@ -73,8 +74,12 @@ class Field:
     GETTERS
   """
 
-  def get_tile_at(self, x, y) -> Tile:
+  def get_tile_at_axial_coord(self, x, y) -> Tile:
     return self.tiles.get((x, y), None)
+  
+  def get_tile_at_world_coord(self, x: float, y: float) -> Tile:
+    axial_coords = world_to_axial(x, y, self.hex_size) # TODO: make hex_size a parameter
+    return self.get_tile_at_axial_coord(*axial_coords)
     
   def get_selected_tile(self) -> Tile:
     return self.tile_selection_manager.selected_tile
@@ -83,13 +88,13 @@ class Field:
     return self.tile_selection_manager.hovered_tile
   
   # Could be an attribute? IDK, we'll see.
-  def get_field_center(self, hex_size: int) -> tuple[float, float]:
+  def get_field_center(self) -> tuple[float, float]:
     import math
     SQRT3 = math.sqrt(3)
 
     # Total field width and height in pixels
-    field_width = (self.width - 1 + 0.5) * SQRT3 * hex_size
-    field_height = (self.height - 1) * 1.5 * hex_size
+    field_width = (self.width - 1 + 0.5) * SQRT3 * self.hex_size
+    field_height = (self.height - 1) * 1.5 * self.hex_size
 
     # Center coordinates
     center_x = field_width / 2

@@ -1,8 +1,10 @@
+from dataclasses import dataclass, field
+from typing import Optional
+
+@dataclass
 class Tile:
-    def __init__(self, q: int, r: int, height: int = 0, env_modifiers=None, unit=None):
-        self.q = q
-        self.r = r
-        self.height = height
-        # env_modifiers could have more than 1 component.
-        self.env_modifiers = env_modifiers if env_modifiers is not None else []
-        self.unit = unit  # Placeholder for rodent component, if any
+    q: int
+    r: int
+    height: int = 0
+    env_modifiers: list = field(default_factory=list)
+    unit: Optional[object] = None  # could be Unit or None

@@ -51,9 +51,9 @@ class InputManager:
 
             # Right-click: place a new unit at the clicked tile
             elif event.button == 3:  # Right mouse button
-                q, r = world_to_axial(world_coords[0], world_coords[1], hex_size=30)  # Adjust hex_size accordingly
+                q, r = world_to_axial(*world_coords, self.field.hex_size)  # Adjust hex_size accordingly
                 # Check if tile is empty
-                if self.field.get_tile_at(q, r).unit is None:
+                if self.field.get_tile_at_world_coord(*world_coords).unit is None:
                     # Create a new Unit instance (example: default stats)
                     new_unit = Unit(
                         name="NewRodent",
@@ -72,9 +72,9 @@ class InputManager:
                 else:
                     print(f"Tile at ({q}, {r}) is occupied, cannot place unit.")
         
-
     """
-    Handles keyboard input for camera movement."""
+    Handles keyboard input for camera movement.
+    """
     def _handle_keyboard_input(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
@@ -101,12 +101,10 @@ class InputManager:
     Converts world coordinates to axial coordinates and selects the tile.  
     """
     def _select_tile(self, world_coords):
-        hex_coords = world_to_axial(world_coords[0], world_coords[1], hex_size=30)
-        selected_tile = self.field.get_tile_at(hex_coords[0], hex_coords[1])
+        selected_tile = self.field.get_tile_at_world_coord(*world_coords)
         self.field.tile_selection_manager.select(selected_tile)
 
     def _hover_tile(self, world_coords):
-        hex_coords = world_to_axial(world_coords[0], world_coords[1], hex_size=30)
-        hovered_tile = self.field.get_tile_at(hex_coords[0], hex_coords[1])
+        hovered_tile = self.field.get_tile_at_world_coord(*world_coords)
         self.field.tile_selection_manager.hover(hovered_tile)
 

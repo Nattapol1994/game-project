@@ -2,10 +2,10 @@ import pygame
 from src.hex_utils import *
 
 class Renderer:
-    def __init__(self, screen, camera, hex_size):
+    def __init__(self, screen, camera, field_hex_size):
         self.screen = screen
         self.camera = camera
-        self.hex_size = hex_size
+        self.hex_size = field_hex_size
         self.font = pygame.font.SysFont(None, 24)  # Default font for rendering text
 
     def render(self, screen, field, units, effects):
