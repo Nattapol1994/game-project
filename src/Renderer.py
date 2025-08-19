@@ -14,17 +14,18 @@ class Renderer:
 
         # Delegate to smaller functions
         self.render_field(screen, field)
-        # self.render_units(screen, units)
+        self.render_units(screen, field)
         # self.render_effects(screen, effects)
 
+        # Highlight hovered tile
+        hov = field.get_hovered_tile()
+        if hov:
+            self.draw_tile_highlight(screen, hov, color=(0, 200, 255))
+
         # Highlight selected tile
-        sel = field.tile_selection_manager.selected_tile
+        sel = field.get_selected_tile()
         if sel:
             self.draw_tile_highlight(screen, sel, color=(255, 255, 0))
-
-        # Highlight additional tiles if needed
-        # for tile in field.tile_selection_manager.highlighted_tiles:
-        #     self.draw_tile_highlight(screen, tile, color=(0, 200, 255))
 
     def render_field(self, screen, field):
         for tile in field.tiles.values():
@@ -85,9 +86,27 @@ class Renderer:
         text_surf = self.font.render(text, True, color)
         self.screen.blit(text_surf, position)
 
-    # def render_units(self, screen, units):
-    #     for unit in units:
-    #         self.draw_unit(screen, unit)
+    def draw_unit_placeholder(self, screen, tile, color=(200, 50, 50)):
+        """
+        Draw a unit placeholder (e.g., a circle) on top of the tile.
+        Respects camera zoom and offset.
+        """
+        # Get tile center in world coordinates
+        world_x, world_y = axial_to_world(tile.q, tile.r, 0, 0, self.hex_size)
+
+        # Convert to screen coordinates via camera
+        screen_x, screen_y = self.camera.world_to_screen(world_x, world_y)
+
+        # Size scaled by camera zoom
+        radius = int(self.hex_size * 0.5 * self.camera.zoom)  # half the tile size
+
+        # Draw circle
+        pygame.draw.circle(screen, color, (int(screen_x), int(screen_y)), radius)
+
+    def render_units(self, screen, field):
+        for tile in field.tiles.values():
+            if hasattr(tile, "unit") and tile.unit is not None:
+                self.draw_unit_placeholder(screen, tile)
 
     # def render_effects(self, screen, effects):
     #     for effect in effects:

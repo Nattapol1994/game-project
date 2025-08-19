@@ -12,9 +12,12 @@ class Field:
     self.height = 0
     self.width = 0
     self.tile_selection_manager = TileSelectionManager()
+
+    # Load the field from the specified path
+    # Tiles, height, width are loaded from the file.
     self.load_and_compose_field(path)
 
-  def load_and_compose_field(self, path: str) -> None:
+  def load_and_compose_field(self, path: str):
     # Load level definition json file.
     with open(path, 'r') as file:
       data = json.load(file)
@@ -54,10 +57,32 @@ class Field:
         # Store tile in dict with (x, y) as axial coordinates
         self.tiles[(x, y)] = Tile(q=x, r=y, height=tile_height, env_modifiers=modifiers)
   
+  def place_unit(self, unit):
+    tile_coords = unit.tile  
+    tile = self.get_tile_at(*tile_coords)
+    if tile is not None:
+        if tile.unit is None:  # check occupancy
+            tile.unit = unit   # assign unit to tile
+        else:
+            raise ValueError(f"Tile at {tile_coords} is already occupied")
+    else:
+        raise ValueError(f"No tile exists at coordinates {tile_coords}")
+    
+  # region GETTER AND SETTERS
   """
-    Returns the geometric center of the field in world coordinates,
-    based on the field's dimensions and hex size.
+    GETTERS
   """
+
+  def get_tile_at(self, x, y) -> Tile:
+    return self.tiles.get((x, y), None)
+    
+  def get_selected_tile(self) -> Tile:
+    return self.tile_selection_manager.selected_tile
+  
+  def get_hovered_tile(self) -> Tile:
+    return self.tile_selection_manager.hovered_tile
+  
+  # Could be an attribute? IDK, we'll see.
   def get_field_center(self, hex_size: int) -> tuple[float, float]:
     import math
     SQRT3 = math.sqrt(3)
@@ -72,23 +97,7 @@ class Field:
 
     return center_x, center_y
 
-  """
-    Returns the Tile object at the specified axial coordinates (x, y).
-    If no tile exists at those coordinates, returns None.
-  """
-  def get_tile_at(self, x, y) -> Tile:
-    return self.tiles.get((x, y), None)
-  
-  def place_unit(self, unit):
-    tile_coords = unit.tile  
-    tile = self.get_tile_at(*tile_coords)
-    if tile is not None:
-        if tile.unit is None:  # check occupancy
-            tile.unit = unit   # assign unit to tile
-        else:
-            raise ValueError(f"Tile at {tile_coords} is already occupied")
-    else:
-        raise ValueError(f"No tile exists at coordinates {tile_coords}")
+  # endregion
   
 class TileSelectionManager:
     def __init__(self):
@@ -98,7 +107,13 @@ class TileSelectionManager:
     def select(self, tile: Tile):
         self.selected_tile = tile
 
-    def clear(self):
+    def hover(self, tile: Tile):
+        self.hovered_tile = tile
+
+    def clear_selected(self):
         self.selected_tile = None
+
+    def clear_hovered(self):
+        self.hovered_tile = None
 
 

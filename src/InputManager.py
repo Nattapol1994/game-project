@@ -42,6 +42,8 @@ class InputManager:
     def _handle_mouse_event(self, event, world_coords):
         if event.type == pygame.MOUSEWHEEL:
             self._zoom(event.y)
+        elif event.type == pygame.MOUSEMOTION:
+            self._hover_tile(world_coords)
         elif event.type == pygame.MOUSEBUTTONDOWN:
             # Left-click: select tile/unit
             if event.button == 1:
@@ -49,12 +51,9 @@ class InputManager:
 
             # Right-click: place a new unit at the clicked tile
             elif event.button == 3:  # Right mouse button
-                print(f"Right-click at world coordinates: {world_coords}")
                 q, r = world_to_axial(world_coords[0], world_coords[1], hex_size=30)  # Adjust hex_size accordingly
-                print(f"Converted to axial coordinates: ({q}, {r})")
                 # Check if tile is empty
                 if self.field.get_tile_at(q, r).unit is None:
-                    print(f"Tile at ({q}, {r}) is not occupied, placing unit.")
                     # Create a new Unit instance (example: default stats)
                     new_unit = Unit(
                         name="NewRodent",
@@ -72,6 +71,7 @@ class InputManager:
                     print(f"Placed unit at ({q}, {r})")
                 else:
                     print(f"Tile at ({q}, {r}) is occupied, cannot place unit.")
+        
 
     """
     Handles keyboard input for camera movement."""
@@ -79,7 +79,12 @@ class InputManager:
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
             self.camera.x -= self.pan_speed / self.camera.zoom
-        # ...other directions
+        if keys[pygame.K_RIGHT]:
+            self.camera.x += self.pan_speed / self.camera.zoom
+        if keys[pygame.K_UP]:
+            self.camera.y -= self.pan_speed / self.camera.zoom
+        if keys[pygame.K_DOWN]:
+            self.camera.y += self.pan_speed / self.camera.zoom
 
     """
     Zooms the camera in or out based on mouse wheel input.
@@ -99,4 +104,9 @@ class InputManager:
         hex_coords = world_to_axial(world_coords[0], world_coords[1], hex_size=30)
         selected_tile = self.field.get_tile_at(hex_coords[0], hex_coords[1])
         self.field.tile_selection_manager.select(selected_tile)
+
+    def _hover_tile(self, world_coords):
+        hex_coords = world_to_axial(world_coords[0], world_coords[1], hex_size=30)
+        hovered_tile = self.field.get_tile_at(hex_coords[0], hex_coords[1])
+        self.field.tile_selection_manager.hover(hovered_tile)
 

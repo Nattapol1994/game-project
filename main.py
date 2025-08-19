@@ -14,7 +14,7 @@ def main():
 
     # Set up the window
     screen_width, screen_height = 800, 600
-    screen = pygame.display.set_mode((screen_width, screen_height))
+    screen = pygame.display.set_mode((screen_width, screen_height), pygame.RESIZABLE)
     pygame.display.set_caption("Basic Pygame Skeleton")
     clock = pygame.time.Clock()
 
@@ -32,7 +32,6 @@ def main():
         running = input_manager.process_all_events()
 
         # Drawing
-        screen.fill((30, 30, 30)) # Dark gray background
         renderer.render(screen, field, [], [])
 
         # TODO: Create debug message pipeline to separate input and rendering logic.
