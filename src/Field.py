@@ -4,15 +4,20 @@ from src.Tile import Tile
 import pygame
 import math
 from src.Camera import Camera
+from src.hex_utils import *
+
+# TODO: Implement the skeleton for feature-tile ownership registry.
 
 class Field:
   def __init__(self, path: str):
+    # Initialize field properties
+    self.tiles = {}  # Dictionary to hold Tile objects with (x, y) as keys
     self.height = 0
     self.width = 0
-    layers = self.load_data(path)
-    self.compose_field(layers=layers)
+    self.tile_selection_manager = TileSelectionManager()
+    self.load_and_compose_field(path)
 
-  def load_data(self, path: str) -> List[List[List[int]]]:
+  def load_and_compose_field(self, path: str) -> None:
     # Load level definition json file.
     with open(path, 'r') as file:
       data = json.load(file)
@@ -26,23 +31,20 @@ class Field:
     for layer in data["layers"]:
       extracted_layers.append(layer["data"])
 
-    # Return the extracted layer definitions as 2D arrays.
+    # Convert 1D layer data to 2D arrays.
     def to_2d(data_1d: List[int], width: int, height: int) -> List[List[int]]:
       return [data_1d[i * width:(i + 1) * width] for i in range(height)]
 
-    extracted_layers_2d = [to_2d(layer_data, self.width, self.height) for layer_data in extracted_layers]
-    return extracted_layers_2d
+    layers = [to_2d(layer_data, self.width, self.height) for layer_data in extracted_layers]
 
-  def compose_field(self, layers: List[List[List[int]]]) -> None:
-    self.tiles = []
+    # Compose the field using the extracted layers.
+    self.tiles = {}
     for y in range(self.height):
-      row = []
       for x in range(self.width):
         # First layer defines playable space & their heights.
         # If tile_height = 0, define that tile as empty and skip to the next tile.
         tile_height = layers[0][y][x]
         if tile_height == 0:
-          row.append(None)
           continue
 
         # Second layer defines env. modifiers
@@ -52,33 +54,43 @@ class Field:
         if modifier_id != 0:
           modifiers.append(modifier_id)
 
-        tile = Tile(height=tile_height, env_modifiers=modifiers)
-        row.append(tile)
-
-      self.tiles.append(row)
-
-  def draw(self, screen: pygame.Surface, camera: Camera, hex_size: int):
-    font = pygame.font.SysFont(None, 24)  # create font once
-
-    for y in range(self.height):
-      for x in range(self.width):
-        tile = self.tiles[y][x]
-        if tile is None:
-          continue
-
-        # Calculate tile world position (axial to pixel)
-        q, r = x, y
-        wx, wy = self.axial_to_pixel(q, r, 0, 0, hex_size)  # World coords relative to origin (0,0)
-
-        # Convert world coords to screen coords using camera
-        sx, sy = camera.world_to_screen(wx, wy)
-
-        # Now draw tile at screen coords
-        tile.draw(screen, sx, sy, hex_size, font, camera.zoom)
-
-  def axial_to_pixel(self, q, r, center_x, center_y, size):
+        # Store tile in dict with (x, y) as axial coordinates
+        self.tiles[(x, y)] = Tile(q=x, r=y, height=tile_height, env_modifiers=modifiers)
+  
+  def get_field_center(self, hex_size: int) -> tuple[float, float]:
+    """
+    Returns the geometric center of the field in world coordinates,
+    based on the field's dimensions and hex size.
+    """
     import math
     SQRT3 = math.sqrt(3)
-    x = size * SQRT3 * (q + 0.5 * (r & 1)) + center_x  # stagger odd rows by 0.5
-    y = size * 1.5 * r + center_y
-    return x, y
+
+    # Total field width and height in pixels
+    field_width = (self.width - 1 + 0.5) * SQRT3 * hex_size
+    field_height = (self.height - 1) * 1.5 * hex_size
+
+    # Center coordinates
+    center_x = field_width / 2
+    center_y = field_height / 2
+
+    return center_x, center_y
+
+  def get_tile_at(self, x, y) -> Tile:
+    """
+    Returns the Tile object at the specified axial coordinates (x, y).
+    If no tile exists at those coordinates, returns None.
+    """
+    return self.tiles.get((x, y), None)
+  
+class TileSelectionManager:
+    def __init__(self):
+        self.selected_tile = None
+        self.hovered_tile = None
+
+    def select(self, tile: Tile):
+        self.selected_tile = tile
+
+    def clear(self):
+        self.selected_tile = None
+
+
