@@ -1,5 +1,6 @@
 import pygame
 from src.hex_utils import *
+from src.Unit import Unit
 
 class InputManager:
     def __init__(self, camera, pan_speed=10, zoom_speed=0.1, min_zoom=0.5, max_zoom=3.0, field=None):
@@ -42,8 +43,35 @@ class InputManager:
         if event.type == pygame.MOUSEWHEEL:
             self._zoom(event.y)
         elif event.type == pygame.MOUSEBUTTONDOWN:
+            # Left-click: select tile/unit
             if event.button == 1:
                 self._select_tile(world_coords)
+
+            # Right-click: place a new unit at the clicked tile
+            elif event.button == 3:  # Right mouse button
+                print(f"Right-click at world coordinates: {world_coords}")
+                q, r = world_to_axial(world_coords[0], world_coords[1], hex_size=30)  # Adjust hex_size accordingly
+                print(f"Converted to axial coordinates: ({q}, {r})")
+                # Check if tile is empty
+                if self.field.get_tile_at(q, r).unit is None:
+                    print(f"Tile at ({q}, {r}) is not occupied, placing unit.")
+                    # Create a new Unit instance (example: default stats)
+                    new_unit = Unit(
+                        name="NewRodent",
+                        hp=10,
+                        speed=3,
+                        stamina=2,
+                        move_cost=1,
+                        tile=(q, r),
+                        crumb_cost=1,
+                        defense=1,
+                        attack=2,
+                        height=1
+                    )
+                    self.field.place_unit(new_unit)
+                    print(f"Placed unit at ({q}, {r})")
+                else:
+                    print(f"Tile at ({q}, {r}) is occupied, cannot place unit.")
 
     """
     Handles keyboard input for camera movement."""

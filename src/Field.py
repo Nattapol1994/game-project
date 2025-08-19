@@ -1,9 +1,6 @@
 import json
 from typing import List
 from src.Tile import Tile
-import pygame
-import math
-from src.Camera import Camera
 from src.hex_utils import *
 
 # TODO: Implement the skeleton for feature-tile ownership registry.
@@ -57,11 +54,11 @@ class Field:
         # Store tile in dict with (x, y) as axial coordinates
         self.tiles[(x, y)] = Tile(q=x, r=y, height=tile_height, env_modifiers=modifiers)
   
-  def get_field_center(self, hex_size: int) -> tuple[float, float]:
-    """
+  """
     Returns the geometric center of the field in world coordinates,
     based on the field's dimensions and hex size.
-    """
+  """
+  def get_field_center(self, hex_size: int) -> tuple[float, float]:
     import math
     SQRT3 = math.sqrt(3)
 
@@ -75,12 +72,23 @@ class Field:
 
     return center_x, center_y
 
-  def get_tile_at(self, x, y) -> Tile:
-    """
+  """
     Returns the Tile object at the specified axial coordinates (x, y).
     If no tile exists at those coordinates, returns None.
-    """
+  """
+  def get_tile_at(self, x, y) -> Tile:
     return self.tiles.get((x, y), None)
+  
+  def place_unit(self, unit):
+    tile_coords = unit.tile  
+    tile = self.get_tile_at(*tile_coords)
+    if tile is not None:
+        if tile.unit is None:  # check occupancy
+            tile.unit = unit   # assign unit to tile
+        else:
+            raise ValueError(f"Tile at {tile_coords} is already occupied")
+    else:
+        raise ValueError(f"No tile exists at coordinates {tile_coords}")
   
 class TileSelectionManager:
     def __init__(self):
