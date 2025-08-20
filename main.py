@@ -5,6 +5,7 @@ from src.Camera import Camera
 from src.InputManager import InputManager
 from src.hex_utils import *
 from src.Renderer import Renderer
+from src.BattleManager import BattleManager
 
 # TODO: Create debug message pipeline?
 # FIXME: Sometimes clicking pixel-perfectly between two tiles select a tile different from the one that was highlighted.
@@ -27,8 +28,9 @@ def main():
     # Set-up camera, input manager, and renderer
     field_center_x, field_center_y = field.get_field_center()
     camera = Camera(x = field_center_x, y = field_center_y, screen_width=screen_width, screen_height=screen_height)
-    input_manager = InputManager(camera=camera, field=field)
-    renderer = Renderer(screen=screen, camera=camera, field_hex_size=field.hex_size)
+    battle_manager = BattleManager()
+    input_manager = InputManager(camera=camera, field=field, battle_manager=battle_manager)
+    renderer = Renderer(screen=screen, camera=camera, field_hex_size=field.hex_size, battle_manager=battle_manager)
 
     running = True
 

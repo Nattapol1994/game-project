@@ -12,7 +12,6 @@ class Field:
     self.tiles = {}  # Dictionary to hold Tile objects with (x, y) as keys
     self.height = 0
     self.width = 0
-    self.tile_selection_manager = TileSelectionManager()
     self.hex_size = hex_size  # Size of hex tiles in pixels
 
     # Load the field from the specified path

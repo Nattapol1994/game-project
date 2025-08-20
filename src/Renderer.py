@@ -2,11 +2,12 @@ import pygame
 from src.hex_utils import *
 
 class Renderer:
-    def __init__(self, screen, camera, field_hex_size):
+    def __init__(self, screen, camera, field_hex_size, battle_manager=None):
         self.screen = screen
         self.camera = camera
         self.hex_size = field_hex_size
         self.font = pygame.font.SysFont(None, 24)  # Default font for rendering text
+        self.battle_manager = battle_manager
 
     def render(self, screen, field, units, effects):
         # Clear background
@@ -18,12 +19,12 @@ class Renderer:
         # self.render_effects(screen, effects)
 
         # Highlight hovered tile
-        hov = field.get_hovered_tile()
+        hov = self.battle_manager.tile_selection_manager.hovered_tile
         if hov:
             self.draw_tile_highlight(screen, hov, color=(0, 200, 255))
 
         # Highlight selected tile
-        sel = field.get_selected_tile()
+        sel = self.battle_manager.tile_selection_manager.selected_tile
         if sel:
             self.draw_tile_highlight(screen, sel, color=(255, 255, 0))
 
@@ -68,13 +69,7 @@ class Renderer:
         zoomed_size = self.hex_size * self.camera.zoom
         
         # Get corners for flat-top hex
-        corners = []
-        for i in range(6):
-            angle_deg = 60 * i - 30  # flat-top
-            angle_rad = math.radians(angle_deg)
-            x = screen_x + zoomed_size * math.cos(angle_rad)
-            y = screen_y + zoomed_size * math.sin(angle_rad)
-            corners.append((x, y))
+        corners = hex_corners(screen_x, screen_y, zoomed_size)
         
         # Draw the polygon outline
         pygame.draw.polygon(screen, color, corners, width)

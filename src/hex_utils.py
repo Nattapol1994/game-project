@@ -39,8 +39,7 @@ def world_to_axial(world_x, world_y, hex_size):
     Return a list of 6 (x, y) points for the corners of a hex
     at axial coords (q, r), sized by hex_size.
 """
-def hex_corners(q: int, r: int, hex_size: int) -> list[tuple[float, float]]:
-    cx, cy = axial_to_world(q, r, 0, 0, hex_size)  # center of hex
+def hex_corners(cx: int, cy: int, hex_size: int) -> list[tuple[float, float]]:
     corners = []
     for i in range(6):
         angle_deg = 60 * i - 30  # flat-top orientation

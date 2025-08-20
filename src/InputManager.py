@@ -3,7 +3,8 @@ from src.hex_utils import *
 from src.Unit import Unit
 
 class InputManager:
-    def __init__(self, camera, pan_speed=10, zoom_speed=0.1, min_zoom=0.5, max_zoom=3.0, field=None):
+    def __init__(self, camera, pan_speed=10, zoom_speed=0.1, min_zoom=0.5, max_zoom=3.0, field=None, battle_manager=None):
+        
         self.camera = camera
         self.pan_speed = pan_speed
         self.zoom_speed = zoom_speed
@@ -11,6 +12,7 @@ class InputManager:
         self.max_zoom = max_zoom
         self.field = field  # Reference to the field for tile selection
         self.font = pygame.font.SysFont(None, 24) # Default font for rendering text
+        self.battle_manager = battle_manager
 
     """
     Processes all input events and updates camera and tile selection accordingly.
@@ -102,9 +104,9 @@ class InputManager:
     """
     def _select_tile(self, world_coords):
         selected_tile = self.field.get_tile_at_world_coord(*world_coords)
-        self.field.tile_selection_manager.select(selected_tile)
+        self.battle_manager.tile_selection_manager.select(selected_tile)
 
     def _hover_tile(self, world_coords):
         hovered_tile = self.field.get_tile_at_world_coord(*world_coords)
-        self.field.tile_selection_manager.hover(hovered_tile)
+        self.battle_manager.tile_selection_manager.hover(hovered_tile)
 
