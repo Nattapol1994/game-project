@@ -2,6 +2,7 @@ import json
 from typing import List
 from src.Tile import Tile
 from src.hex_utils import *
+from src.TileSelectionManager import TileSelectionManager
 
 # TODO: Implement the skeleton for feature-tile ownership registry.
 
@@ -103,22 +104,5 @@ class Field:
     return center_x, center_y
 
   # endregion
-  
-class TileSelectionManager:
-    def __init__(self):
-        self.selected_tile = None
-        self.hovered_tile = None
-
-    def select(self, tile: Tile):
-        self.selected_tile = tile
-
-    def hover(self, tile: Tile):
-        self.hovered_tile = tile
-
-    def clear_selected(self):
-        self.selected_tile = None
-
-    def clear_hovered(self):
-        self.hovered_tile = None
 
 

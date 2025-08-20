@@ -49,3 +49,16 @@ def hex_corners(q: int, r: int, hex_size: int) -> list[tuple[float, float]]:
         y = cy + hex_size * math.sin(angle_rad)
         corners.append((x, y))
     return corners
+
+"""
+    Returns True if the two axial hex coordinates are neighbors.
+    Works for odd-r staggered layout.
+"""
+def are_adjacent(q1, r1, q2, r2):
+    # Odd-r axial neighbors
+    neighbors = [
+        (1, 0), (-1, 0),
+        (0, 1), (0, -1),
+        (1, -1), (-1, 1)
+    ]
+    return any((q1 + dq, r1 + dr) == (q2, r2) for dq, dr in neighbors)

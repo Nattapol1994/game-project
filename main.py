@@ -6,7 +6,8 @@ from src.InputManager import InputManager
 from src.hex_utils import *
 from src.Renderer import Renderer
 
-# TODO: Create debug message pipeline.
+# TODO: Create debug message pipeline?
+# FIXME: Sometimes clicking pixel-perfectly between two tiles select a tile different from the one that was highlighted.
 
 def main():
     pygame.init()
